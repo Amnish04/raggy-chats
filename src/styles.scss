@@ -15,3 +15,11 @@
   * by plugins.
   */
 @tailwind utilities;
+
+$color-accent: rgb(163, 8, 163);
+
+
+::selection {
+    background-color: $color-accent;
+    color: white;
+}
