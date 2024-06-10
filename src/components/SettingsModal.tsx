@@ -1,6 +1,7 @@
 import { SettingsIcon } from "@chakra-ui/icons";
 import {
     FormControl,
+    FormErrorMessage,
     FormHelperText,
     FormLabel,
     IconButton,
@@ -18,6 +19,7 @@ import { ChangeEvent, useCallback, useState } from "react";
 import { useDebounce } from "react-use";
 import { useSettings } from "../hooks/use-settings";
 import PasswordInput from "./PasswordInput";
+import { validateApiKey } from "../lib/ai";
 
 const SettingsModal = () => {
     const { isOpen, onOpen, onClose } = useDisclosure();
@@ -29,6 +31,7 @@ const SettingsModal = () => {
     const { settings, setSettings } = useSettings();
 
     const [apiKey, setApiKey] = useState<string>(settings.apiKey);
+    const [isKeyValid, setIsKeyValid] = useState<boolean>(true);
 
     const [, cancel] = useDebounce(
         () => {
@@ -39,9 +42,20 @@ const SettingsModal = () => {
     );
 
     const handleApiKeyChange = useCallback(
-        (evt: ChangeEvent<HTMLInputElement>) => {
+        async (evt: ChangeEvent<HTMLInputElement>) => {
             cancel();
-            setApiKey(evt.target.value);
+
+            const enteredKey = evt.target.value;
+
+            setApiKey(enteredKey);
+
+            try {
+                const result = await validateApiKey(enteredKey);
+
+                setIsKeyValid(result);
+            } catch {
+                setIsKeyValid(false);
+            }
         },
         [cancel]
     );
@@ -66,16 +80,25 @@ const SettingsModal = () => {
 
                     <ModalBody paddingBottom={10}>
                         <Stack spacing={3}>
-                            <FormControl>
+                            <FormControl isInvalid={!isKeyValid}>
                                 <FormLabel>API Key</FormLabel>
                                 <PasswordInput
                                     value={apiKey}
+                                    isInvalid={!isKeyValid}
                                     onChange={handleApiKeyChange}
-                                    placeholder={"sp-***************"}
+                                    placeholder={"sk-***************"}
                                 />
-                                <FormHelperText>
-                                    Please enter your OpenAI API Key to be used for chat completions
-                                </FormHelperText>
+
+                                {isKeyValid ? (
+                                    <FormHelperText>
+                                        Please enter your OpenAI API Key to be used for chat
+                                        completions
+                                    </FormHelperText>
+                                ) : (
+                                    <FormErrorMessage>
+                                        Please enter a valid API key
+                                    </FormErrorMessage>
+                                )}
                             </FormControl>
                         </Stack>
                     </ModalBody>

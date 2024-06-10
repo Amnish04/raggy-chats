@@ -23,7 +23,7 @@ export type RaggyChatsDocumentTable = {
     type: string;
     useForRAG: boolean;
     dateAdded: Date;
-    chunksIds: string[];
+    chunkIds: string[];
 };
 
 export type RaggyChatsDocumentChunkTable = {

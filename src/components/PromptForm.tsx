@@ -10,12 +10,16 @@ import {
 import { useCallback } from "react";
 import { IoMdSend } from "react-icons/io";
 import FileInputButton from "./FileInputButton";
+import { getVectorEmbeddings } from "../lib/ai";
 
 export default function PromptForm() {
     const handleFileUpload = useCallback(async (selectedFiles: FileList) => {
         const selectedFile = selectedFiles[0];
 
         console.log(await selectedFile.text());
+
+        const textContent = await selectedFile.text();
+        getVectorEmbeddings(textContent);
     }, []);
 
     return (
