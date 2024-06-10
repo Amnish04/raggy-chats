@@ -21,6 +21,7 @@ export type RaggyChatsDocumentTable = {
   id: string;
   fileName: string;
   type: string;
+  useForRAG: boolean;
   dateAdded: Date;
   chunksIds: string[];
 };
@@ -45,7 +46,7 @@ class RaggyChatsDatabase extends Dexie {
     this.version(1).stores({
       //   chats: "id, date, summary, messageIds",
       messages: "id, date, type, model, text",
-      documents: "id, fileName, type, dateAdded",
+      documents: "id, fileName, type, dateAdded, useForRAG",
       documentChunks: "id, documentId",
     });
 
