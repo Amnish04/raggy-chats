@@ -13,7 +13,7 @@ export const defaults: Settings = {
     apiKey: "",
 };
 
-export const key = "settings";
+export const key = "raggy-chats-settings";
 
 export const serializer = (value: Settings) => JSON.stringify(value);
 

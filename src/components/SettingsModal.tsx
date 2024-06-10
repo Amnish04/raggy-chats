@@ -14,7 +14,9 @@ import {
     Tooltip,
     useDisclosure,
 } from "@chakra-ui/react";
-import { useCallback } from "react";
+import { ChangeEvent, useCallback, useState } from "react";
+import { useDebounce } from "react-use";
+import { useSettings } from "../hooks/use-settings";
 import PasswordInput from "./PasswordInput";
 
 const SettingsModal = () => {
@@ -23,6 +25,26 @@ const SettingsModal = () => {
     const handleModalOpened = useCallback(() => {
         onOpen();
     }, [onOpen]);
+
+    const { settings, setSettings } = useSettings();
+
+    const [apiKey, setApiKey] = useState<string>(settings.apiKey);
+
+    const [, cancel] = useDebounce(
+        () => {
+            setSettings({ ...settings, apiKey: apiKey ?? "" });
+        },
+        500,
+        [apiKey]
+    );
+
+    const handleApiKeyChange = useCallback(
+        (evt: ChangeEvent<HTMLInputElement>) => {
+            cancel();
+            setApiKey(evt.target.value);
+        },
+        [cancel]
+    );
 
     return (
         <>
@@ -46,7 +68,11 @@ const SettingsModal = () => {
                         <Stack spacing={3}>
                             <FormControl>
                                 <FormLabel>API Key</FormLabel>
-                                <PasswordInput placeholder={"sp-***************"} />
+                                <PasswordInput
+                                    value={apiKey}
+                                    onChange={handleApiKeyChange}
+                                    placeholder={"sp-***************"}
+                                />
                                 <FormHelperText>
                                     Please enter your OpenAI API Key to be used for chat completions
                                 </FormHelperText>
