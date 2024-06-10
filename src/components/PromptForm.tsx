@@ -12,8 +12,10 @@ import FileInputButton from "./FileInputButton";
 import { useCallback } from "react";
 
 export default function PromptForm() {
-    const handleFileUpload = useCallback((selectedFiles: FileList) => {
-        console.log(selectedFiles)
+    const handleFileUpload = useCallback(async (selectedFiles: FileList) => {
+        const selectedFile = selectedFiles[0];
+
+        console.log(await selectedFile.text());
     }, []);
 
   return (
