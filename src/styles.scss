@@ -1,23 +1,4 @@
-/**
- * This injects Tailwind's base styles and any base styles registered by
- * plugins.
- */
-@tailwind base;
-
-/**
-  * This injects Tailwind's component classes and any component classes
-  * registered by plugins.
-  */
-@tailwind components;
-
-/**
-  * This injects Tailwind's utility classes and any utility classes registered
-  * by plugins.
-  */
-@tailwind utilities;
-
-$color-accent: rgb(163, 8, 163);
-
+$color-accent: rgba(144, 59, 144, 0.87);
 
 ::selection {
     background-color: $color-accent;
