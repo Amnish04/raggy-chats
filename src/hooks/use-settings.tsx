@@ -23,6 +23,7 @@ const SettingsContext = createContext<SettingsContextType>({
     },
 });
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useSettings = () => useContext(SettingsContext);
 
 export const SettingsProvider: FC<{ children: ReactNode }> = ({ children }) => {

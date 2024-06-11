@@ -81,7 +81,7 @@ export function useAlert() {
                 status: "warning",
                 position: "top",
                 isClosable: true,
-                duration: 3000,
+                duration: 5000,
             }),
         [toast]
     );

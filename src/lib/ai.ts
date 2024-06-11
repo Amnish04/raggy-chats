@@ -41,7 +41,7 @@ type OpenAiEmbeddingModel =
 export async function getVectorEmbeddings(
     content: string,
     model: OpenAiEmbeddingModel = "text-embedding-3-small"
-) {
+): Promise<number[]> {
     const { apiKey } = getSettings();
     const { openai } = createClient(apiKey);
 
@@ -51,6 +51,5 @@ export async function getVectorEmbeddings(
         encoding_format: "float",
     });
 
-    console.log(embedding);
-    return embedding;
+    return embedding.data[0].embedding;
 }

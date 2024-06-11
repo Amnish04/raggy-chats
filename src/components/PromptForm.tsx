@@ -7,17 +7,19 @@ import {
     Tooltip,
 } from "@chakra-ui/react";
 
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { IoMdSend } from "react-icons/io";
+import { useAlert } from "../hooks/use-alert";
 import { getVectorEmbeddings } from "../lib/ai";
 import { RaggyChatsDocument } from "../lib/models/RaggyChatsDocument";
-import { RaggyChatsDocumentChunk } from "../lib/models/RaggyChatsDocumentChunk";
+import { RaggyChatsDocumentChunk, VectorEmbedding } from "../lib/models/RaggyChatsDocumentChunk";
 import { getSentenceChunksFrom } from "../lib/utils";
 import FileInputButton from "./FileInputButton";
-import { useAlert } from "../hooks/use-alert";
 
 export default function PromptForm() {
     const { error, progress, closeToast, info } = useAlert();
+
+    const [userQuery, setUserQuery] = useState<string>("");
 
     const handleFileUpload = useCallback(
         async (selectedFiles: FileList) => {
@@ -25,11 +27,11 @@ export default function PromptForm() {
 
             try {
                 const textContent = await selectedFile.text();
-                const chunks = getSentenceChunksFrom(textContent, 500);
+                const chunks = getSentenceChunksFrom(textContent, 2000);
 
                 const chunksToBeProcessed = chunks.length;
                 let chunksProcessed = 0;
-                let progressPercentage = chunksProcessed / chunksToBeProcessed;
+                let progressPercentage = Math.floor((chunksProcessed * 100) / chunksToBeProcessed);
 
                 const progressToastId = progress({
                     title: "Uploading Document",
@@ -48,15 +50,15 @@ export default function PromptForm() {
                 // These vector embedding requests could be concurrent,
                 // but would be an overkill since the vectore generation
                 // is already super fast
-                chunks.forEach(async (chunk, index) => {
+                for (const [index, chunk] of chunks.entries()) {
                     documentChunks[index] = new RaggyChatsDocumentChunk({
                         content: chunk,
-                        embedding: (await getVectorEmbeddings(chunk)).data[0].embedding,
+                        embedding: await getVectorEmbeddings(chunk),
                         documentId: document.id,
                     });
 
                     ++chunksProcessed;
-                    progressPercentage = Math.floor(chunksProcessed / chunksToBeProcessed);
+                    progressPercentage = Math.floor((chunksProcessed * 100) / chunksToBeProcessed);
 
                     progress({
                         id: progressToastId,
@@ -65,7 +67,7 @@ export default function PromptForm() {
                         progressPercentage,
                         updateOnly: true,
                     });
-                });
+                }
 
                 progress({
                     id: progressToastId,
@@ -85,9 +87,9 @@ export default function PromptForm() {
                     updateOnly: true,
                 });
 
-                documentChunks.forEach(async (docChunk) => {
+                for (const docChunk of documentChunks) {
                     await docChunk.save();
-                });
+                }
 
                 progress({
                     id: progressToastId,
@@ -97,12 +99,14 @@ export default function PromptForm() {
                     updateOnly: true,
                 });
 
-                closeToast(progressToastId);
+                setTimeout(() => {
+                    closeToast(progressToastId);
 
-                info({
-                    title: "Document successfully saved",
-                    message: "It can now be used to augment your queries to LLM",
-                });
+                    info({
+                        title: "Document successfully saved",
+                        message: "It can now be used to augment your queries to LLM",
+                    });
+                }, 1000 * 1);
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
             } catch (err: any) {
                 console.log(err);
@@ -114,6 +118,24 @@ export default function PromptForm() {
         },
         [closeToast, error, info, progress]
     );
+
+    const handleSendMessage = useCallback(async () => {
+        console.log(userQuery);
+
+        if (userQuery.length) {
+            // Retrieve, Augment and Generate
+
+            // Generate a vector embedding for user query
+            const queryEmbedding = await getVectorEmbeddings(userQuery);
+            const mostRelevantChunks = await VectorEmbedding.vectorSearch(queryEmbedding, 10);
+
+            // const relevantContext = `You may use this context to answer any queries:"\n\n ${mostRelevantChunks.map((result) => result.content).join("\n\n")}`;
+
+            console.log(mostRelevantChunks);
+
+            setUserQuery("");
+        }
+    }, [userQuery]);
 
     return (
         <InputGroup>
@@ -128,6 +150,13 @@ export default function PromptForm() {
             </InputLeftElement>
 
             <Input
+                onKeyUp={(evt) => {
+                    if (evt.key === "Enter") {
+                        handleSendMessage();
+                    }
+                }}
+                value={userQuery}
+                onChange={(evt) => setUserQuery(evt.target.value)}
                 focusBorderColor="purple.500"
                 aria-label="Enter your query"
                 placeholder={"Enter your query"}
@@ -136,6 +165,7 @@ export default function PromptForm() {
             <InputRightElement>
                 <Tooltip label={"Send Message"}>
                     <IconButton
+                        onClick={handleSendMessage}
                         aria-label="Send Message"
                         variant={"outline"}
                         border={"none"}

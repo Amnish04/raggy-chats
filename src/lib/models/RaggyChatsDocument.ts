@@ -39,7 +39,7 @@ export class RaggyChatsDocument {
             id: document.id,
             fileName: document.fileName,
             type: document.type,
-            useForRAG: document.useForRAG,
+            useForRAG: !!document.useForRAG,
             dateAdded: document.dateAdded,
         });
     }
@@ -49,13 +49,19 @@ export class RaggyChatsDocument {
             id: this.id,
             fileName: this.fileName,
             type: this.type,
-            useForRAG: this.useForRAG,
+            useForRAG: this.useForRAG ? 1 : 0,
             dateAdded: this.dateAdded,
         };
     }
 
     async save() {
         return db.documents.add(this.toDB());
+    }
+
+    static async getDocumentsForRAG(): Promise<RaggyChatsDocument[]> {
+        const ragEnabledDocuments = await db.documents.where("useForRAG").equals(1).toArray();
+
+        return ragEnabledDocuments.map((doc) => RaggyChatsDocument.fromDB(doc));
     }
 
     /**

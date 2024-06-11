@@ -21,7 +21,7 @@ export type RaggyChatsDocumentTable = {
     id: string;
     fileName: string;
     type: string;
-    useForRAG: boolean;
+    useForRAG: 0 | 1;
     dateAdded: Date;
 };
 

@@ -19,6 +19,7 @@
         "dexie": "^4.0.7",
         "dexie-react-hooks": "^1.1.7",
         "framer-motion": "^11.2.10",
+        "heap-js": "^2.5.0",
         "nanoid": "^5.0.7",
         "openai": "^4.49.1",
         "react": "^18.2.0",

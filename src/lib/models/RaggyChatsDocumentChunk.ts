@@ -1,5 +1,14 @@
 import { nanoid } from "nanoid";
 import db, { RaggyChatsDocumentChunkTable } from "../db";
+import { RaggyChatsDocument } from "./RaggyChatsDocument";
+import { Heap } from "heap-js";
+
+interface VectorSearchRankedResult {
+    id: string;
+    documentId: string;
+    content: string;
+    similarity: number;
+}
 
 export type VectorEmbeddings = VectorEmbedding[];
 
@@ -11,14 +20,56 @@ export class VectorEmbedding {
     }
 
     get magnitude(): number {
-        // TODO
-        return 0;
+        return Math.sqrt(this.embedding.reduce((sum, value) => sum + value * value, 0));
     }
 
     dotProduct(otherVector: VectorEmbedding): number {
-        // TODO
-        console.log(otherVector);
-        return 0;
+        return this.embedding.reduce(
+            (sum, value, index) => sum + value * otherVector.embedding[index],
+            0
+        );
+    }
+
+    cosineSimilarity(otherVector: VectorEmbedding): number {
+        const dotProduct = this.dotProduct(otherVector);
+        const magnitudeProduct = this.magnitude * otherVector.magnitude;
+        return magnitudeProduct === 0 ? 0 : dotProduct / magnitudeProduct;
+    }
+
+    static async vectorSearch(
+        queryEmbedding: number[],
+        topN: number
+    ): Promise<VectorSearchRankedResult[]> {
+        const queryVector = new VectorEmbedding(queryEmbedding);
+
+        // Retrieve document chunks relevant for RAG
+        const documentChunks = await RaggyChatsDocumentChunk.getChunksForRag();
+
+        // Configure as a max heap
+        const heap = new Heap<VectorSearchRankedResult>((a, b) => b.similarity - a.similarity);
+
+        for (const chunk of documentChunks) {
+            const chunkVector = new VectorEmbedding(chunk.vector.embedding);
+            const similarity = queryVector.cosineSimilarity(chunkVector);
+
+            heap.push({
+                id: chunk.id,
+                documentId: chunk.documentId,
+                content: chunk.content,
+                similarity: similarity,
+            });
+        }
+
+        // Most similar chunks would be
+        // most valuable nodes in the heap
+
+        const results: VectorSearchRankedResult[] = [];
+
+        for (let i = 0; i < topN && !heap.isEmpty(); ++i) {
+            results.push(heap.pop()!);
+        }
+
+        return results;
     }
 }
 
@@ -65,6 +116,20 @@ export class RaggyChatsDocumentChunk {
 
     async save() {
         return db.documentChunks.add(this.toDB());
+    }
+
+    static async getChunksForDocuments(documentIds: string[]): Promise<RaggyChatsDocumentChunk[]> {
+        return (await db.documentChunks.where("documentId").anyOf(documentIds).toArray()).map(
+            (docChunk) => RaggyChatsDocumentChunk.fromDB(docChunk)
+        );
+    }
+
+    static async getChunksForRag() {
+        const documentIdsToBeProcessed = (await RaggyChatsDocument.getDocumentsForRAG()).map(
+            (doc) => doc.id
+        );
+
+        return await RaggyChatsDocumentChunk.getChunksForDocuments(documentIdsToBeProcessed);
     }
 
     static async remove(id: string) {
