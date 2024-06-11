@@ -31,6 +31,10 @@ export default function PromptForm() {
                 progressPercentage: 0,
             });
 
+            // Limit the number of concurrent tasks
+            const pLimit = (await import("p-limit")).default;
+            const limit = pLimit(4); // Adjust the concurrency limit as needed
+
             try {
                 const textContent = await selectedFile.text();
                 const chunks = getSentenceChunksFrom(textContent, 2000);
@@ -50,24 +54,31 @@ export default function PromptForm() {
                 // These vector embedding requests could be concurrent,
                 // but would be an overkill since the vectore generation
                 // is already super fast
-                for (const [index, chunk] of chunks.entries()) {
-                    documentChunks[index] = new RaggyChatsDocumentChunk({
-                        content: chunk,
-                        embedding: await getVectorEmbeddings(chunk),
-                        documentId: document.id,
-                    });
+                const tasks = chunks.map((chunk, index) =>
+                    limit(async () => {
+                        documentChunks[index] = new RaggyChatsDocumentChunk({
+                            content: chunk,
+                            embedding: await getVectorEmbeddings(chunk),
+                            documentId: document.id,
+                        });
 
-                    ++chunksProcessed;
-                    progressPercentage = Math.floor((chunksProcessed * 100) / chunksToBeProcessed);
+                        ++chunksProcessed;
+                        progressPercentage = Math.floor(
+                            (chunksProcessed * 100) / chunksToBeProcessed
+                        );
 
-                    progress({
-                        id: progressToastId,
-                        title: "Uploading Document",
-                        message: "Generating vector embeddings...",
-                        progressPercentage,
-                        updateOnly: true,
-                    });
-                }
+                        progress({
+                            id: progressToastId,
+                            title: "Uploading Document",
+                            message: "Generating vector embeddings...",
+                            progressPercentage,
+                            updateOnly: true,
+                        });
+                    })
+                );
+
+                // Wait for all the tasks to complete
+                await Promise.all(tasks);
 
                 progress({
                     id: progressToastId,
