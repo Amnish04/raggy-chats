@@ -25,6 +25,12 @@ export default function PromptForm() {
         async (selectedFiles: FileList) => {
             const selectedFile = selectedFiles[0];
 
+            const progressToastId = progress({
+                title: "Uploading Document",
+                message: "Generating vector embeddings...",
+                progressPercentage: 0,
+            });
+
             try {
                 const textContent = await selectedFile.text();
                 const chunks = getSentenceChunksFrom(textContent, 2000);
@@ -32,12 +38,6 @@ export default function PromptForm() {
                 const chunksToBeProcessed = chunks.length;
                 let chunksProcessed = 0;
                 let progressPercentage = Math.floor((chunksProcessed * 100) / chunksToBeProcessed);
-
-                const progressToastId = progress({
-                    title: "Uploading Document",
-                    message: "Generating vector embeddings...",
-                    progressPercentage,
-                });
 
                 // Create Models (Document and Chunks)
                 const document = new RaggyChatsDocument({
@@ -114,6 +114,8 @@ export default function PromptForm() {
                     title: "Document upload failed",
                     message: err.message,
                 });
+
+                closeToast(progressToastId);
             }
         },
         [closeToast, error, info, progress]
@@ -132,6 +134,8 @@ export default function PromptForm() {
             // const relevantContext = `You may use this context to answer any queries:"\n\n ${mostRelevantChunks.map((result) => result.content).join("\n\n")}`;
 
             console.log(mostRelevantChunks);
+
+            // Chat Completions Here
 
             setUserQuery("");
         }
