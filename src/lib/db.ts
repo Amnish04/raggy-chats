@@ -23,14 +23,13 @@ export type RaggyChatsDocumentTable = {
     type: string;
     useForRAG: boolean;
     dateAdded: Date;
-    chunkIds: string[];
 };
 
 export type RaggyChatsDocumentChunkTable = {
     id: string;
     documentId: string;
     content: string;
-    embedding: Float64Array;
+    embedding: number[];
 };
 
 class RaggyChatsDatabase extends Dexie {

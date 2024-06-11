@@ -1,4 +1,5 @@
-import { RaggyChatsDocumentTable } from "./db";
+import { nanoid } from "nanoid";
+import db, { RaggyChatsDocumentTable } from "../db";
 
 export class RaggyChatsDocument {
     id: string;
@@ -14,17 +15,23 @@ export class RaggyChatsDocument {
         useForRAG = true,
         dateAdded = new Date(Date.now()),
     }: {
-        id: string;
+        id?: string;
         fileName: string;
         type: string;
-        useForRAG: boolean;
-        dateAdded: Date;
+        useForRAG?: boolean;
+        dateAdded?: Date;
     }) {
-        this.id = id;
+        this.id = id ?? nanoid();
         this.fileName = fileName;
         this.type = type;
         this.useForRAG = useForRAG;
         this.dateAdded = dateAdded;
+    }
+
+    private static supportedDocumentTypes: string[] = ["text/plain", "text/markdown", "text/html"];
+
+    static isSupportedType(type: string) {
+        return this.supportedDocumentTypes.includes(type);
     }
 
     static fromDB(document: RaggyChatsDocumentTable): RaggyChatsDocument {
@@ -37,15 +44,18 @@ export class RaggyChatsDocument {
         });
     }
 
-    toDB(chunkIds: string[]): RaggyChatsDocumentTable {
+    toDB(): RaggyChatsDocumentTable {
         return {
             id: this.id,
             fileName: this.fileName,
             type: this.type,
             useForRAG: this.useForRAG,
             dateAdded: this.dateAdded,
-            chunkIds,
         };
+    }
+
+    async save() {
+        return db.documents.add(this.toDB());
     }
 
     /**
