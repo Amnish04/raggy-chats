@@ -1,4 +1,5 @@
 import Dexie, { Table } from "dexie";
+import { MessageType } from "./models/RaggyChatsMessage";
 
 // export type RaggyChatsChatTable = {
 //   id: string;
@@ -6,8 +7,6 @@ import Dexie, { Table } from "dexie";
 //   summary?: string;
 //   messageIds: string[];
 // };
-
-export type MessageType = "human" | "ai" | "system";
 
 export type RaggyChatsMessageTable = {
     id: string;
