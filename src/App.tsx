@@ -1,15 +1,15 @@
+import { Box } from "@chakra-ui/react";
 import ChatBase from "./components/Chats/ChatBase";
 import Header from "./components/Header";
-import Layout from "./components/Layout";
 
 function App() {
     return (
         <>
             <Header />
 
-            <Layout>
+            <Box as="main">
                 <ChatBase />
-            </Layout>
+            </Box>
         </>
     );
 }
