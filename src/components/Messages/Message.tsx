@@ -1,73 +1,127 @@
 import {
     Avatar,
     Box,
-    Button,
     Card,
     CardBody,
-    CardFooter,
     CardHeader,
     Flex,
     Heading,
     IconButton,
-    Image,
+    Menu,
+    MenuButton,
+    MenuItem,
+    MenuList,
     Text,
 } from "@chakra-ui/react";
-import { BiChat, BiLike, BiShare } from "react-icons/bi";
 import { BsThreeDotsVertical } from "react-icons/bs";
+import { RaggyChatsMessage } from "../../lib/models/RaggyChatsMessage";
+import { useCallback, useMemo } from "react";
+import { DeleteIcon, EditIcon } from "@chakra-ui/icons";
+import { useAlert } from "../../hooks/use-alert";
+import useMessages from "../../hooks/use-messages";
 
-export default function Message() {
+type MessageMenuProps = {
+    message: RaggyChatsMessage;
+};
+
+const MessageMenu = ({ message }: MessageMenuProps) => {
+    const { error, success } = useAlert();
+
+    const { removeMessage } = useMessages();
+
+    const deleteMessage = useCallback(async () => {
+        try {
+            await removeMessage(message.id);
+
+            success({
+                title: "Message deleted successfully",
+            });
+        } catch (err: any) {
+            console.error(err);
+            error({
+                title: "Failed to delete message",
+                message: err.message,
+            });
+        }
+    }, [message]);
+
+    const editMessage = useCallback(() => {
+        console.log(`Editing message ${message.id}`);
+    }, [message]);
+
     return (
-        <Card maxW="md">
+        <Menu>
+            <MenuButton
+                as={IconButton}
+                colorScheme="gray"
+                aria-label="Options"
+                icon={<BsThreeDotsVertical />}
+                variant="ghost"
+            />
+            <MenuList>
+                <MenuItem onClick={editMessage} icon={<EditIcon />}>
+                    Edit
+                </MenuItem>
+                <MenuItem onClick={deleteMessage} color={"red.500"} icon={<DeleteIcon />}>
+                    Delete
+                </MenuItem>
+            </MenuList>
+        </Menu>
+    );
+};
+
+type MessageProps = {
+    message: RaggyChatsMessage;
+};
+
+export default function Message({ message }: MessageProps) {
+    const messageTitle = useMemo(() => {
+        let title = "";
+
+        switch (message.type) {
+            case "system":
+                title = "System Prompt";
+                break;
+            case "human":
+                title = "User";
+                break;
+            case "ai":
+                title = message.model ?? "GPT-Unknown";
+                break;
+        }
+
+        return title;
+    }, [message]);
+
+    return (
+        <Card
+            maxW={message.type !== "system" ? "5xl" : "full"}
+            margin={message.type === "system" ? "auto" : 0}
+            marginLeft={message.type === "ai" ? "auto" : 0}
+            marginRight={message.type === "human" ? "auto" : 0}
+        >
             <CardHeader>
                 <Flex gap={4}>
                     <Flex flex="1" gap="4" alignItems="center" flexWrap="wrap">
-                        <Avatar name="Segun Adebayo" src="https://bit.ly/sage-adebayo" />
+                        <Avatar
+                            name="Raggy Chats"
+                            src="/openai-icon.svg"
+                            size={"sm"}
+                            objectFit={"fill"}
+                            objectPosition={"center"}
+                        />
 
                         <Box>
-                            <Heading size="sm">Segun Adebayo</Heading>
-                            <Text>Creator, Chakra UI</Text>
+                            <Heading size="sm">{messageTitle}</Heading>
                         </Box>
                     </Flex>
-                    <IconButton
-                        variant="ghost"
-                        colorScheme="gray"
-                        aria-label="See menu"
-                        icon={<BsThreeDotsVertical />}
-                    />
+
+                    <MessageMenu message={message} />
                 </Flex>
             </CardHeader>
-            <CardBody>
-                <Text>
-                    With Chakra UI, I wanted to sync the speed of development with the speed of
-                    design. I wanted the developer to be just as excited as the designer to create a
-                    screen.
-                </Text>
+            <CardBody paddingTop={0}>
+                <Text>{message.text}</Text>
             </CardBody>
-            <Image
-                objectFit="cover"
-                src="https://images.unsplash.com/photo-1531403009284-440f080d1e12?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80"
-                alt="Chakra UI"
-            />
-
-            <CardFooter
-                justify="space-between"
-                flexWrap="wrap"
-                sx={{
-                    "& > button": {
-                        minW: "136px",
-                    },
-                }}
-            >
-                <Button flex="1" variant="ghost" leftIcon={<BiLike />}>
-                    Like
-                </Button>
-                <Button flex="1" variant="ghost" leftIcon={<BiChat />}>
-                    Comment
-                </Button>
-                <Button flex="1" variant="ghost" leftIcon={<BiShare />}>
-                    Share
-                </Button>
-            </CardFooter>
         </Card>
     );
 }

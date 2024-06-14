@@ -15,7 +15,6 @@ export default function Header() {
             as={"header"}
             padding={2}
             backgroundColor={"black"}
-            boxShadow={"2xl"}
             backgroundBlendMode={"lighten"}
             justifyContent={"space-between"}
             alignItems={"center"}

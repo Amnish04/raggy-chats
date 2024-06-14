@@ -22,11 +22,21 @@ type MessagesContextType = {
 
 const defaultSystemMessage = new RaggyChatsMessage({
     type: "system",
-    text: "Hi, my name is Raggy Chats. I am your best ever AI powered companion that can help you with wide variety of topics. My interface also allows you to upload different types of documents that I can use to augment my chat completions.",
+    text: `Welcome to Raggy Chats, your specialized AI assistant for Retrieval Augmented Generation (RAG).
+
+    I am here to enhance your information retrieval and content generation tasks by integrating state-of-the-art retrieval techniques with advanced natural language processing. Whether you're looking to generate content, answer complex queries, or find specific information, I'm equipped to provide precise and contextually relevant responses.
+
+    How to Use Raggy Chats:
+
+    1. Upload any relevant documents, for the system to conduct semantic search and include relevant chunks in your queries.
+    2. Input Your Query: Type in any question or topic you need information on.
+    3. Review and Refine: After receiving the initial output, you can refine your query or ask for more detailed information based on the response.
+
+    Let's dive into the depths of knowledge together. How can I assist you with your retrieval and generation needs today?`,
 });
 
 const MessagesContext = createContext<MessagesContextType>({
-    messages: [defaultSystemMessage],
+    messages: [],
     addMessage: asyncNoop,
     removeMessage: asyncNoop,
 });
@@ -42,8 +52,7 @@ export const MessagesProvider: FC<{ children: ReactNode }> = ({ children }) => {
                 if (messages.length) {
                     setMessages(messages);
                 } else {
-                    await RaggyChatsMessage.add(defaultSystemMessage);
-                    setMessages(await RaggyChatsMessage.getAll());
+                    await addMessage(defaultSystemMessage);
                 }
             } catch (err: any) {
                 console.error(err);
@@ -70,14 +79,16 @@ export const MessagesProvider: FC<{ children: ReactNode }> = ({ children }) => {
                 });
             }
         },
-        [error]
+        [error, setMessages]
     );
 
     const removeMessage = useCallback(
         async (id: string) => {
             try {
                 await RaggyChatsMessage.remove(id);
-                setMessages(await RaggyChatsMessage.getAll());
+
+                const latestMessages = await RaggyChatsMessage.getAll();
+                setMessages(latestMessages);
             } catch (err: any) {
                 console.error(err);
                 error({

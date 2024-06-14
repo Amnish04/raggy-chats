@@ -17,7 +17,7 @@ export default function ChatBase() {
             <Box overflowY={"auto"}>
                 <Box w={"80vw"} marginInline={"auto"}>
                     {messages.map((message) => (
-                        <Message key={`message-${message.id}`} />
+                        <Message key={`message-${message.id}`} message={message} />
                     ))}
                 </Box>
             </Box>
