@@ -51,7 +51,11 @@ type MarkdownProps = {
     className?: string;
 };
 
-function Markdown({ onPrompt, children, className = "message-text" }: MarkdownProps) {
+function Markdown({
+    // onPrompt,
+    children,
+    className = "message-text",
+}: MarkdownProps) {
     const style = useColorModeValue(oneLight, oneDark);
 
     return (
