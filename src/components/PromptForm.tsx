@@ -144,6 +144,7 @@ export default function PromptForm() {
                     message: err.message,
                 });
 
+                handleClose();
                 closeToast(progressToastId);
             }
         },
