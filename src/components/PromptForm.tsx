@@ -35,6 +35,14 @@ export default function PromptForm() {
             const pLimit = (await import("p-limit")).default;
             const limit = pLimit(4); // Adjust the concurrency limit as needed
 
+            const emebeddingAbortController = new AbortController();
+            const { signal: emebeddingAbortSignal } = emebeddingAbortController;
+
+            const handleClose = () => {
+                limit.clearQueue();
+                emebeddingAbortController.abort();
+            };
+
             try {
                 const textContent = await selectedFile.text();
                 const chunks = getSentenceChunksFrom(textContent, 2000);
@@ -58,7 +66,11 @@ export default function PromptForm() {
                     limit(async () => {
                         documentChunks[index] = new RaggyChatsDocumentChunk({
                             content: chunk,
-                            embedding: await getVectorEmbeddings(chunk),
+                            embedding: await getVectorEmbeddings(
+                                chunk,
+                                undefined,
+                                emebeddingAbortSignal
+                            ),
                             documentId: document.id,
                         });
 
@@ -73,6 +85,7 @@ export default function PromptForm() {
                             message: "Generating vector embeddings...",
                             progressPercentage,
                             updateOnly: true,
+                            handleClose,
                         });
                     })
                 );
@@ -80,35 +93,40 @@ export default function PromptForm() {
                 // Wait for all the tasks to complete
                 await Promise.all(tasks);
 
-                progress({
-                    id: progressToastId,
-                    title: "Uploading Document",
-                    message: "Saving document info in indexedDB...",
-                    progressPercentage,
-                    updateOnly: true,
-                });
+                if (!emebeddingAbortSignal.aborted) {
+                    progress({
+                        id: progressToastId,
+                        title: "Uploading Document",
+                        message: "Saving document info in indexedDB...",
+                        progressPercentage,
+                        updateOnly: true,
+                        handleClose,
+                    });
 
-                await document.save();
+                    await document.save();
 
-                progress({
-                    id: progressToastId,
-                    title: "Uploading Document",
-                    message: "Saving chunks and embeddings in indexedDB...",
-                    progressPercentage,
-                    updateOnly: true,
-                });
+                    progress({
+                        id: progressToastId,
+                        title: "Uploading Document",
+                        message: "Saving chunks and embeddings in indexedDB...",
+                        progressPercentage,
+                        updateOnly: true,
+                        handleClose,
+                    });
 
-                for (const docChunk of documentChunks) {
-                    await docChunk.save();
+                    for (const docChunk of documentChunks) {
+                        await docChunk.save();
+                    }
+
+                    progress({
+                        id: progressToastId,
+                        title: "Uploading Document",
+                        message: "Saving chunks and embeddings in indexedDB...",
+                        progressPercentage: 100,
+                        updateOnly: true,
+                        handleClose,
+                    });
                 }
-
-                progress({
-                    id: progressToastId,
-                    title: "Uploading Document",
-                    message: "Saving chunks and embeddings in indexedDB...",
-                    progressPercentage: 100,
-                    updateOnly: true,
-                });
 
                 setTimeout(() => {
                     closeToast(progressToastId);
