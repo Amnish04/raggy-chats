@@ -39,7 +39,9 @@ function ProgressToast({
                 <IconButton
                     position={"absolute"}
                     display={"flex"}
-                    bgColor={"transparent"}
+                    colorScheme={"blue"}
+                    bgColor={useColorModeValue("blue.600", "blue.200")}
+                    color={useColorModeValue("white", "black")}
                     alignItems={"center"}
                     top={0}
                     right={0}
