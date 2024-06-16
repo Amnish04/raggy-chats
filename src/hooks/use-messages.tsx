@@ -22,15 +22,15 @@ type MessagesContextType = {
 
 const defaultSystemMessage = new RaggyChatsMessage({
     type: "system",
-    text: `Welcome to Raggy Chats, your specialized AI assistant for Retrieval Augmented Generation (RAG).
+    text: `Welcome to **Raggy Chats**, your specialized AI assistant for **Retrieval Augmented Generation** (RAG).
 
 I am here to enhance your information retrieval and content generation tasks by integrating state-of-the-art retrieval techniques with advanced natural language processing. Whether you're looking to generate content, answer complex queries, or find specific information, I'm equipped to provide precise and contextually relevant responses.
 
 How to Use Raggy Chats:
 
-1. Upload any relevant documents, for the system to conduct semantic search and include relevant chunks in your queries.
-2. Input Your Query: Type in any question or topic you need information on.
-3. Review and Refine: After receiving the initial output, you can refine your query or ask for more detailed information based on the response.
+1. **Upload** any relevant documents, for the system to conduct semantic search and include relevant chunks in your queries.
+2. **Input** Your Query: Type in any question or topic you need information on.
+3. **Review** and Refine: After receiving the initial output, you can refine your query or ask for more detailed information based on the response.
 
 Let's dive into the depths of knowledge together. How can I assist you with your retrieval and generation needs today?`,
 });
