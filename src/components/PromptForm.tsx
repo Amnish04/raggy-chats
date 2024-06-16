@@ -25,6 +25,17 @@ export default function PromptForm() {
         async (selectedFiles: FileList) => {
             const selectedFile = selectedFiles[0];
 
+            if (!RaggyChatsDocument.isSupportedType(selectedFile.type)) {
+                error({
+                    title: "Document upload failed",
+                    message: `"${selectedFile.type}" is not a supported document type yet.\n\nUpcoming supported types:\n\n${RaggyChatsDocument.upcomingSupportedTypes()
+                        .map((type) => `"${type}"`)
+                        .join(", ")}`,
+                });
+
+                return;
+            }
+
             const progressToastId = progress({
                 title: "Uploading Document",
                 message: "Generating vector embeddings...",

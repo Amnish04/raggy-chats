@@ -34,6 +34,10 @@ export class RaggyChatsDocument {
         return this.supportedDocumentTypes.includes(type);
     }
 
+    static upcomingSupportedTypes(): string[] {
+        return ["application/pdf", "application/msword", "image/png", "image/jpeg", "image/svg"];
+    }
+
     static fromDB(document: RaggyChatsDocumentTable): RaggyChatsDocument {
         return new RaggyChatsDocument({
             id: document.id,
