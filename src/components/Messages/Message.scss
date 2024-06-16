@@ -1,0 +1,143 @@
+/* Extra styles for HTML within a message */
+
+.message-text {
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        line-height: 1.4;
+        margin: 0.5em auto;
+    }
+}
+
+/* Apply some sizing to headings, use Minor Second (1.067) https://typescale.com/ */
+.message-text {
+    h1 {
+        font-size: 1.383em;
+    }
+
+    h2 {
+        font-size: 1.296em;
+    }
+
+    h3 {
+        font-size: 1.215em;
+    }
+
+    h4 {
+        font-size: 1.138em;
+    }
+
+    h5 {
+        font-size: 1.067em;
+    }
+
+    h6 {
+        font-size: 1em;
+    }
+}
+
+.message-text {
+    p {
+        margin-bottom: 0.5em;
+        line-height: 1.6;
+    }
+
+    ul,
+    ol {
+        margin: 0;
+        padding: 0.5em 1.5em;
+    }
+
+    blockquote {
+        border-left: 4px solid #0096bfab;
+        margin: 1.5em 0em;
+        padding: 0.5em 1em;
+        font-style: italic;
+    }
+
+    kbd {
+        padding: 5px;
+        border-radius: 6px;
+    }
+
+    /* Wrap inline code in backticks and make bold */
+    .inline-code::before {
+        content: "`";
+        font-size: 0.9em;
+    }
+
+    .inline-code {
+        font-weight: bold;
+        font-size: 0.9em;
+    }
+
+    .inline-code::after {
+        content: "`";
+        font-size: 0.9em;
+    }
+
+    pre {
+        margin: 0.5em auto;
+
+        code {
+            font-size: 0.95em;
+            max-width: 100%;
+            white-space: pre-wrap !important;
+            overflow-wrap: break-word;
+        }
+    }
+
+    img {
+        width: 50%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+        margin-bottom: 10px;
+    }
+
+    th,
+    td {
+        border: 1px solid #ccc;
+        padding: 5px;
+    }
+
+    a {
+        text-decoration: underline;
+    }
+}
+
+.linenumber {
+    display: inline-block;
+    padding-left: 0.5em;
+    font-style: italic;
+}
+
+/* Force the line numbers to be lighter gray in highlight.js styles */
+.chakra-ui-light .linenumber {
+    color: rgb(160, 161, 167);
+}
+
+.chakra-ui-dark .linenumber {
+    color: rgb(92, 99, 112);
+}
+
+.message-text-blur {
+    --mask: linear-gradient(
+            to bottom,
+            rgba(0, 0, 0, 1) 0,
+            rgba(0, 0, 0, 1) 50%,
+            rgba(0, 0, 0, 0) 95%,
+            rgba(0, 0, 0, 0) 0
+        )
+        100% 50% / 100% 100% repeat-x;
+    -webkit-mask: var(--mask);
+    mask: var(--mask);
+}

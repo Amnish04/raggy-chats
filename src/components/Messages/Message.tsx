@@ -1,3 +1,4 @@
+import { DeleteIcon, EditIcon } from "@chakra-ui/icons";
 import {
     Avatar,
     Box,
@@ -11,14 +12,14 @@ import {
     MenuButton,
     MenuItem,
     MenuList,
-    Text,
 } from "@chakra-ui/react";
-import { BsThreeDotsVertical } from "react-icons/bs";
-import { RaggyChatsMessage } from "../../lib/models/RaggyChatsMessage";
 import { useCallback, useMemo } from "react";
-import { DeleteIcon, EditIcon } from "@chakra-ui/icons";
+import { BsThreeDotsVertical } from "react-icons/bs";
 import { useAlert } from "../../hooks/use-alert";
 import useMessages from "../../hooks/use-messages";
+import { RaggyChatsMessage } from "../../lib/models/RaggyChatsMessage";
+import Markdown from "./Markdown";
+import "./Message.scss";
 
 type MessageMenuProps = {
     message: RaggyChatsMessage;
@@ -120,7 +121,9 @@ export default function Message({ message }: MessageProps) {
                 </Flex>
             </CardHeader>
             <CardBody paddingTop={0}>
-                <Text>{message.text}</Text>
+                <Box>
+                    <Markdown isLoading={false}>{message.text}</Markdown>
+                </Box>
             </CardBody>
         </Card>
     );
