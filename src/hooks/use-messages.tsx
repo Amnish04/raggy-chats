@@ -70,7 +70,7 @@ export const MessagesProvider: FC<{ children: ReactNode }> = ({ children }) => {
         async (message: RaggyChatsMessage) => {
             try {
                 await RaggyChatsMessage.add(message);
-                setMessages(await RaggyChatsMessage.getAll());
+                setMessages((prevValue) => [...prevValue, new RaggyChatsMessage(message)]);
             } catch (err: any) {
                 console.error(err);
                 error({

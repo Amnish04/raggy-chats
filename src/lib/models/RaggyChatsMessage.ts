@@ -1,7 +1,7 @@
 import { nanoid } from "nanoid";
 import db, { RaggyChatsMessageTable } from "../db";
 
-export type MessageType = "human" | "ai" | "system";
+export type MessageType = "user" | "assistant" | "system";
 
 export type RaggyChatsMessages = RaggyChatsMessage[];
 
@@ -59,7 +59,9 @@ export class RaggyChatsMessage {
     }
 
     static async getAll() {
-        return (await db.messages.toArray()).map((message) => RaggyChatsMessage.fromDB(message));
+        return (await db.messages.orderBy("date").toArray()).map((message) =>
+            RaggyChatsMessage.fromDB(message)
+        );
     }
 
     static async add(message: RaggyChatsMessage) {

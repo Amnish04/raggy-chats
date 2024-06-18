@@ -1,4 +1,5 @@
 import OpenAI from "openai";
+import { AiMessages } from "./models/AiMessage";
 import { getSettings } from "./settings";
 
 export const OPENAI_API_URL = "https://api.openai.com/v1";
@@ -58,4 +59,19 @@ export async function getVectorEmbeddings(
     );
 
     return embedding.data[0].embedding;
+}
+
+export const GPT_MODEL = "gpt-3.5-turbo";
+
+export async function chatCompletions(model: string = GPT_MODEL, messages: AiMessages) {
+    const { apiKey } = getSettings();
+    const { openai } = createClient(apiKey);
+
+    const response = await openai.chat.completions.create({
+        model: model,
+        messages,
+        stream: false,
+    });
+
+    return response;
 }

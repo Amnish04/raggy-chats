@@ -12,11 +12,15 @@ import { IoMdSend } from "react-icons/io";
 import { useAlert } from "../hooks/use-alert";
 import { getVectorEmbeddings } from "../lib/ai";
 import { RaggyChatsDocument } from "../lib/models/RaggyChatsDocument";
-import { RaggyChatsDocumentChunk, VectorEmbedding } from "../lib/models/RaggyChatsDocumentChunk";
+import { RaggyChatsDocumentChunk } from "../lib/models/RaggyChatsDocumentChunk";
 import { getSentenceChunksFrom } from "../lib/utils";
 import FileInputButton from "./FileInputButton";
 
-export default function PromptForm() {
+type PromptFormProps = {
+    handleSendMessage: (query: string) => void;
+};
+
+export default function PromptForm({ handleSendMessage }: PromptFormProps) {
     const { error, progress, closeToast, info } = useAlert();
 
     const [userQuery, setUserQuery] = useState<string>("");
@@ -162,26 +166,6 @@ export default function PromptForm() {
         [closeToast, error, info, progress]
     );
 
-    const handleSendMessage = useCallback(async () => {
-        console.log(userQuery);
-
-        if (userQuery.length) {
-            // Retrieve, Augment and Generate
-
-            // Generate a vector embedding for user query
-            const queryEmbedding = await getVectorEmbeddings(userQuery);
-            const mostRelevantChunks = await VectorEmbedding.vectorSearch(queryEmbedding, 10);
-
-            // const relevantContext = `You may use this context to answer any queries:"\n\n ${mostRelevantChunks.map((result) => result.content).join("\n\n")}`;
-
-            console.log(mostRelevantChunks);
-
-            // Chat Completions Here
-
-            setUserQuery("");
-        }
-    }, [userQuery]);
-
     return (
         <InputGroup>
             <InputLeftElement>
@@ -197,7 +181,8 @@ export default function PromptForm() {
             <Input
                 onKeyUp={(evt) => {
                     if (evt.key === "Enter") {
-                        handleSendMessage();
+                        setUserQuery("");
+                        handleSendMessage(userQuery);
                     }
                 }}
                 value={userQuery}
@@ -210,7 +195,10 @@ export default function PromptForm() {
             <InputRightElement>
                 <Tooltip label={"Send Message"}>
                     <IconButton
-                        onClick={handleSendMessage}
+                        onClick={() => {
+                            handleSendMessage(userQuery);
+                            setUserQuery("");
+                        }}
                         aria-label="Send Message"
                         variant={"outline"}
                         border={"none"}

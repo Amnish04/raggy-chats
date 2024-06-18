@@ -20,6 +20,7 @@ import useMessages from "../../hooks/use-messages";
 import { RaggyChatsMessage } from "../../lib/models/RaggyChatsMessage";
 import Markdown from "./Markdown";
 import "./Message.scss";
+import { GPT_MODEL } from "../../lib/ai";
 
 type MessageMenuProps = {
     message: RaggyChatsMessage;
@@ -83,11 +84,11 @@ export default function Message({ message }: MessageProps) {
             case "system":
                 title = "System Prompt";
                 break;
-            case "human":
+            case "user":
                 title = "User";
                 break;
-            case "ai":
-                title = message.model ?? "GPT-Unknown";
+            case "assistant":
+                title = message.model ?? GPT_MODEL;
                 break;
         }
 
@@ -96,10 +97,10 @@ export default function Message({ message }: MessageProps) {
 
     return (
         <Card
-            maxW={message.type !== "system" ? "5xl" : "full"}
+            maxW={message.type !== "system" ? "70vw" : "full"}
             margin={message.type === "system" ? "auto" : 0}
-            marginLeft={message.type === "ai" ? "auto" : 0}
-            marginRight={message.type === "human" ? "auto" : 0}
+            marginLeft={message.type === "user" ? "auto" : 0}
+            marginRight={message.type === "assistant" ? "auto" : 0}
         >
             <CardHeader>
                 <Flex gap={4}>
