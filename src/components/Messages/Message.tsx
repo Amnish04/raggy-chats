@@ -12,6 +12,7 @@ import {
     MenuButton,
     MenuItem,
     MenuList,
+    Text,
 } from "@chakra-ui/react";
 import { useCallback, useMemo } from "react";
 import { BsThreeDotsVertical } from "react-icons/bs";
@@ -115,6 +116,10 @@ export default function Message({ message }: MessageProps) {
 
                         <Box>
                             <Heading size="sm">{messageTitle}</Heading>
+
+                            <Text size="sm" color={"rgba(0, 0, 0, 0.70)"}>
+                                {message.date.toLocaleString()}
+                            </Text>
                         </Box>
                     </Flex>
 
