@@ -15,6 +15,7 @@ import { RaggyChatsDocument } from "../lib/models/RaggyChatsDocument";
 import { RaggyChatsDocumentChunk } from "../lib/models/RaggyChatsDocumentChunk";
 import { getSentenceChunksFrom } from "../lib/utils";
 import FileInputButton from "./FileInputButton";
+import useDocuments from "../hooks/use-documents";
 
 type PromptFormProps = {
     handleSendMessage: (query: string) => void;
@@ -24,6 +25,8 @@ export default function PromptForm({ handleSendMessage }: PromptFormProps) {
     const { error, progress, closeToast, info } = useAlert();
 
     const [userQuery, setUserQuery] = useState<string>("");
+
+    const { addDocument } = useDocuments();
 
     const handleFileUpload = useCallback(
         async (selectedFiles: FileList) => {
@@ -118,29 +121,7 @@ export default function PromptForm({ handleSendMessage }: PromptFormProps) {
                         handleClose,
                     });
 
-                    await document.save();
-
-                    progress({
-                        id: progressToastId,
-                        title: "Uploading Document",
-                        message: "Saving chunks and embeddings in indexedDB...",
-                        progressPercentage,
-                        updateOnly: true,
-                        handleClose,
-                    });
-
-                    for (const docChunk of documentChunks) {
-                        await docChunk.save();
-                    }
-
-                    progress({
-                        id: progressToastId,
-                        title: "Uploading Document",
-                        message: "Saving chunks and embeddings in indexedDB...",
-                        progressPercentage: 100,
-                        updateOnly: true,
-                        handleClose,
-                    });
+                    await addDocument(document, documentChunks);
                 }
 
                 setTimeout(() => {

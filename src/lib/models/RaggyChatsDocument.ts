@@ -62,6 +62,16 @@ export class RaggyChatsDocument {
         return db.documents.add(this.toDB());
     }
 
+    static async remove(documentId: string) {
+        await db.documents.delete(documentId);
+
+        await db.documentChunks.bulkDelete(
+            (await db.documentChunks.where("documentId").equals(documentId).toArray()).map(
+                (document) => document.id
+            )
+        );
+    }
+
     static async getDocumentsForRAG(): Promise<RaggyChatsDocument[]> {
         const ragEnabledDocuments = await db.documents.where("useForRAG").equals(1).toArray();
 
@@ -73,5 +83,13 @@ export class RaggyChatsDocument {
      */
     toggleUseForRAG() {
         this.useForRAG = !this.useForRAG;
+    }
+
+    private static iconsByType: { [key: string]: string } = {
+        "text/plain": "/txt-icon.jpg",
+    };
+
+    get iconUrl(): string {
+        return RaggyChatsDocument.iconsByType[this.type];
     }
 }
