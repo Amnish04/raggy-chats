@@ -1,5 +1,5 @@
 import { Flex, Heading, Image, Link } from "@chakra-ui/react";
-import SettingsModal from "./SettingsModal";
+import SettingsModal from "./Settings/SettingsModal";
 
 const RaggyChatsLogo = () => {
     return (

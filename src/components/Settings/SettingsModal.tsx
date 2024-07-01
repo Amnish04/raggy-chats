@@ -17,9 +17,10 @@ import {
 } from "@chakra-ui/react";
 import { ChangeEvent, useCallback, useState } from "react";
 import { useDebounce } from "react-use";
-import { useSettings } from "../hooks/use-settings";
-import PasswordInput from "./PasswordInput";
-import { validateApiKey } from "../lib/ai";
+import { useSettings } from "../../hooks/use-settings";
+import PasswordInput from "../PasswordInput";
+import { validateApiKey } from "../../lib/ai";
+import DocumentsManagement from "./DocumentsManagement";
 
 const SettingsModal = () => {
     const { isOpen, onOpen, onClose } = useDisclosure();
@@ -72,7 +73,13 @@ const SettingsModal = () => {
                 />
             </Tooltip>
 
-            <Modal size={"md"} isOpen={isOpen} onClose={onClose} isCentered={true}>
+            <Modal
+                scrollBehavior="inside"
+                size={"3xl"}
+                isOpen={isOpen}
+                onClose={onClose}
+                isCentered={true}
+            >
                 <ModalOverlay />
                 <ModalContent>
                     <ModalHeader>Settings</ModalHeader>
@@ -100,6 +107,8 @@ const SettingsModal = () => {
                                     </FormErrorMessage>
                                 )}
                             </FormControl>
+
+                            <DocumentsManagement />
                         </Stack>
                     </ModalBody>
                 </ModalContent>
