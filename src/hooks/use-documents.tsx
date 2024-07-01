@@ -1,9 +1,28 @@
-import { useCallback, useEffect, useState } from "react";
+import { FC, ReactNode, createContext, useCallback, useContext, useEffect, useState } from "react";
 import db from "../lib/db";
 import { RaggyChatsDocument } from "../lib/models/RaggyChatsDocument";
 import { RaggyChatsDocumentChunk } from "../lib/models/RaggyChatsDocumentChunk";
 
-const useDocuments = () => {
+const asyncNoop = async () => {};
+
+type DocumentsContextType = {
+    documents: RaggyChatsDocument[];
+    toggleUseForRAG: (documentId: string) => Promise<void>;
+    deleteDocument: (documentId: string) => Promise<void>;
+    addDocument: (
+        document: RaggyChatsDocument,
+        documentChunks: RaggyChatsDocumentChunk[]
+    ) => Promise<void>;
+};
+
+const DocumentsContext = createContext<DocumentsContextType>({
+    documents: [],
+    addDocument: asyncNoop,
+    deleteDocument: asyncNoop,
+    toggleUseForRAG: asyncNoop,
+});
+
+export const DocumentsProvider: FC<{ children: ReactNode }> = ({ children }) => {
     const [documents, setDocuments] = useState<RaggyChatsDocument[]>([]);
     const [refresh, setRefresh] = useState(false);
 
@@ -13,8 +32,8 @@ const useDocuments = () => {
         setDocuments(raggyDocs);
     }, []);
 
-    const toggleUseForRAG = useCallback(async (docId: string) => {
-        const doc = await db.documents.get(docId);
+    const toggleUseForRAG = useCallback(async (documentId: string) => {
+        const doc = await db.documents.get(documentId);
         if (doc) {
             const updatedDoc = RaggyChatsDocument.fromDB(doc);
             updatedDoc.toggleUseForRAG();
@@ -46,12 +65,16 @@ const useDocuments = () => {
         fetchDocuments();
     }, [fetchDocuments, refresh]);
 
-    return {
+    const value = {
         documents,
         toggleUseForRAG,
         addDocument,
         deleteDocument,
     };
+
+    return <DocumentsContext.Provider value={value}>{children}</DocumentsContext.Provider>;
 };
+
+const useDocuments = () => useContext(DocumentsContext);
 
 export default useDocuments;
