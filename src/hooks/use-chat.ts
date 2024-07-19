@@ -1,11 +1,15 @@
 import { useState } from "react";
 import { GPT_MODEL, chatCompletions } from "../lib/ai";
 import { AiMessage } from "../lib/models/AiMessage";
-import { RaggyChatsMessage, RaggyChatsMessages } from "../lib/models/RaggyChatsMessage";
+import {
+    MessageType,
+    RaggyChatsMessage,
+    RaggyChatsMessages,
+} from "../lib/models/RaggyChatsMessage";
 import useMessages from "./use-messages";
 
 type UseChatUtilities = {
-    streamingMessage: string | null;
+    streamingMessage: RaggyChatsMessage | null;
     generateChatCompletions: (
         messages: RaggyChatsMessages,
         scrollCallback: () => void
@@ -13,7 +17,7 @@ type UseChatUtilities = {
 };
 
 export const useChat = (): UseChatUtilities => {
-    const [streamingMessage] = useState<string | null>(null);
+    const [streamingMessage, setStreamingMessage] = useState<RaggyChatsMessage | null>(null);
     const { addMessage } = useMessages();
 
     async function generateChatCompletions(
@@ -21,18 +25,37 @@ export const useChat = (): UseChatUtilities => {
         scrollCallback: () => void
     ) {
         // TODO: Replace hard coded model with an option in settings
-        const response = await chatCompletions(
+        const stream = await chatCompletions(
             GPT_MODEL,
             messages.map((message) => new AiMessage(message.type, message.text))
         );
 
-        console.log(response);
-        const message = response.choices[0].message;
-        // setStreamingMessage(response.choices[0].message.content);
+        for await (const chunk of stream) {
+            const chunkMessage = chunk.choices[0].delta;
+
+            setStreamingMessage((prevMessage) => {
+                return prevMessage === null
+                    ? new RaggyChatsMessage({
+                          text: chunkMessage.content ?? "",
+                          type: chunkMessage.role as MessageType,
+                      })
+                    : new RaggyChatsMessage({
+                          ...prevMessage,
+                          text: `${prevMessage.text} ${chunkMessage.content}`,
+                      });
+            });
+
+            scrollCallback();
+        }
+
+        const finalMessage = (await stream.finalChatCompletion()).choices[0].message;
+
+        setStreamingMessage(null);
 
         await addMessage(
-            new RaggyChatsMessage({ type: message.role, text: message.content ?? "" })
+            new RaggyChatsMessage({ type: finalMessage.role, text: finalMessage.content ?? "" })
         );
+
         scrollCallback();
     }
 

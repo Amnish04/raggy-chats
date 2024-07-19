@@ -63,15 +63,18 @@ export async function getVectorEmbeddings(
 
 export const GPT_MODEL = "gpt-3.5-turbo";
 
+// Streaming with openai.beta.chat.completions.stream({…}) exposes
+// various helpers for your convenience including event handlers and promises.
+// https://github.com/openai/openai-node/blob/master/helpers.md#chat-streaming
 export async function chatCompletions(model: string = GPT_MODEL, messages: AiMessages) {
     const { apiKey } = getSettings();
     const { openai } = createClient(apiKey);
 
-    const response = await openai.chat.completions.create({
+    const stream = await openai.beta.chat.completions.stream({
         model: model,
         messages,
-        stream: false,
+        stream: true,
     });
 
-    return response;
+    return stream;
 }
