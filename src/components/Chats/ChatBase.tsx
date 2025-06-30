@@ -4,7 +4,7 @@ import { useChat } from "../../hooks/use-chat";
 import useMessages from "../../hooks/use-messages";
 import { getVectorEmbeddings } from "../../lib/ai";
 import { VectorEmbedding } from "../../lib/models/RaggyChatsDocumentChunk";
-import { RaggyChatsMessage } from "../../lib/models/RaggyChatsMessage";
+import { RaggyChatsMessage, RaggyChatsMessages } from "../../lib/models/RaggyChatsMessage";
 import Message from "../Messages/Message";
 import PromptForm from "../PromptForm";
 import { useAlert } from "../../hooks/use-alert";
@@ -12,7 +12,7 @@ import { useAlert } from "../../hooks/use-alert";
 export default function ChatBase() {
     const { messages, addMessage } = useMessages();
     const { error } = useAlert();
-
+    console.log(messages);
     const { streamingMessage, generateChatCompletions } = useChat();
     const messagesArea = useRef<HTMLDivElement>(null);
 
@@ -26,39 +26,71 @@ export default function ChatBase() {
         }, 0);
     }, []);
 
-    const handleSendMessage = useCallback(async (userQuery: string) => {
-        if (userQuery.length) {
-            try {
-                // Retrieve, Augment and Generate
+    const handleSendMessage = useCallback(
+        async (userQuery: string) => {
+            if (userQuery.length) {
+                try {
+                    // Retrieve, Augment and Generate
 
-                await addMessage(new RaggyChatsMessage({ type: "user", text: userQuery }));
-                scrollToBottom();
+                    await addMessage(new RaggyChatsMessage({ type: "user", text: userQuery }));
+                    scrollToBottom();
 
-                // Generate a vector embedding for user query
-                const queryEmbedding = await getVectorEmbeddings(userQuery);
-                const mostRelevantChunks = await VectorEmbedding.vectorSearch(queryEmbedding, 10);
+                    // Generate a vector embedding for user query
+                    const queryEmbedding = await getVectorEmbeddings(userQuery);
+                    const mostRelevantChunks = await VectorEmbedding.vectorSearch(
+                        queryEmbedding,
+                        10
+                    );
 
-                const relevantContext = `You may use this context to answer any queries, if applicable. But you don't always have to as the question might not be based on this context. So focus more on the other existing messages in the chat:"\n\n ${mostRelevantChunks.map((result) => result.content).join("\n\n")}`;
-                const augmentedUserQuery = `${mostRelevantChunks.length ? `${relevantContext}\n\n` : ""}User Query: ${userQuery}`;
+                    const documentContextMessages: RaggyChatsMessages = [];
+                    if (mostRelevantChunks.length) {
+                        documentContextMessages.push(
+                            new RaggyChatsMessage({
+                                type: "user",
+                                text: "You may use this context to answer any queries.",
+                            })
+                        );
 
-                // Chat Completions Here
-                await generateChatCompletions(
-                    [
-                        ...messages,
-                        new RaggyChatsMessage({ type: "user", text: augmentedUserQuery }),
-                    ],
-                    scrollToBottom
-                );
-            } catch (err: any) {
-                console.error(err);
+                        console.log("Adding to context", mostRelevantChunks);
+                        mostRelevantChunks.forEach((relevantChunk) => {
+                            documentContextMessages.push(
+                                new RaggyChatsMessage({
+                                    type: "user",
+                                    // It is important to include the filename for valid citations to be generated
+                                    text: `**Filename:** ${relevantChunk.documentName}\n**Content:** \n${relevantChunk.content}\n\n`,
+                                })
+                            );
+                        });
+                    }
 
-                error({
-                    title: "Failed to generate a response",
-                    message: err.message,
-                });
+                    const chatMessages = messages.filter((m) => m.type !== "system");
+                    const systemMessages = messages.filter((m) => m.type === "system");
+
+                    console.log("System messages", systemMessages);
+                    console.log("All messages", messages);
+
+                    // Chat Completions Here
+                    await generateChatCompletions(
+                        [
+                            ...systemMessages,
+                            ...documentContextMessages,
+                            ...chatMessages,
+                            new RaggyChatsMessage({ type: "user", text: userQuery }),
+                        ],
+                        scrollToBottom
+                    );
+                } catch (err: any) {
+                    console.error(err);
+
+                    error({
+                        title: "Failed to generate a response",
+                        message: err.message,
+                    });
+                }
             }
-        }
-    }, []);
+        },
+        [messages]
+    );
 
     return (
         <Grid
