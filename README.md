@@ -38,7 +38,7 @@ Users **upload documents** relevant to the context of their queries, and **Raggy
     <img width="753" alt="image" src="https://github.com/user-attachments/assets/8c3769ec-ca1b-440d-8552-c00334bef93b" />
 </div>
 
-And that's all you need to hit the ball rolling with **Raggy Chats**!
+And that's all you need to hit the ground running with **Raggy Chats**!
 
 ## References
 
