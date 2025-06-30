@@ -27,6 +27,7 @@ export type RaggyChatsDocumentTable = {
 export type RaggyChatsDocumentChunkTable = {
     id: string;
     documentId: string;
+    documentName: string;
     content: string;
     embedding: number[];
 };

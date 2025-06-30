@@ -61,7 +61,7 @@ export async function getVectorEmbeddings(
     return embedding.data[0].embedding;
 }
 
-export const GPT_MODEL = "gpt-3.5-turbo";
+export const GPT_MODEL = "gpt-4o";
 
 // Streaming with openai.beta.chat.completions.stream({…}) exposes
 // various helpers for your convenience including event handlers and promises.

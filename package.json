@@ -5,7 +5,8 @@
     "type": "module",
     "scripts": {
         "dev": "vite",
-        "build": "tsc && vite build",
+        "build": "pnpm typecheck && vite build",
+        "typecheck": "tsc",
         "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
         "format": "pnpm exec prettier . --write",
         "preview": "vite preview"

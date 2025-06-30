@@ -6,6 +6,7 @@ import { Heap } from "heap-js";
 interface VectorSearchRankedResult {
     id: string;
     documentId: string;
+    documentName: string;
     content: string;
     similarity: number;
 }
@@ -55,6 +56,7 @@ export class VectorEmbedding {
             heap.push({
                 id: chunk.id,
                 documentId: chunk.documentId,
+                documentName: chunk.documentName,
                 content: chunk.content,
                 similarity: similarity,
             });
@@ -76,22 +78,26 @@ export class VectorEmbedding {
 export class RaggyChatsDocumentChunk {
     id: string;
     documentId: string;
+    documentName: string;
     content: string;
     vector: VectorEmbedding;
 
     constructor({
         id,
         documentId,
+        documentName,
         content,
         embedding,
     }: {
         id?: string;
         documentId: string;
+        documentName: string;
         content: string;
         embedding: number[];
     }) {
         this.id = id ?? nanoid();
         this.documentId = documentId;
+        this.documentName = documentName;
         this.content = content;
         this.vector = new VectorEmbedding(embedding);
     }
@@ -100,6 +106,7 @@ export class RaggyChatsDocumentChunk {
         return new RaggyChatsDocumentChunk({
             id: documentChunk.id,
             documentId: documentChunk.documentId,
+            documentName: documentChunk.documentName,
             content: documentChunk.content,
             embedding: documentChunk.embedding,
         });
@@ -110,6 +117,7 @@ export class RaggyChatsDocumentChunk {
             id: this.id,
             content: this.content,
             documentId: this.documentId,
+            documentName: this.documentName,
             embedding: this.vector.embedding,
         };
     }

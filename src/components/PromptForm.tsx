@@ -90,6 +90,7 @@ export default function PromptForm({ handleSendMessage }: PromptFormProps) {
                                 emebeddingAbortSignal
                             ),
                             documentId: document.id,
+                            documentName: document.fileName,
                         });
 
                         ++chunksProcessed;
