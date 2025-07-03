@@ -125,6 +125,14 @@ export default function Message({ message }: MessageProps) {
         });
     }, [editorValue, message.id]);
 
+    const iconUrl = useMemo(() => {
+        if (message.type === "system") {
+            return "/raggy-chats-logo.png";
+        } else if (message.type === "assistant") {
+            return "/openai-icon.svg";
+        }
+    }, [message.type]);
+
     return (
         <Card
             maxW={message.type !== "system" ? "70vw" : "full"}
@@ -136,8 +144,7 @@ export default function Message({ message }: MessageProps) {
                 <Flex gap={4}>
                     <Flex flex="1" gap="4" alignItems="center" flexWrap="wrap">
                         <Avatar
-                            name="Raggy Chats"
-                            src="/openai-icon.svg"
+                            src={iconUrl}
                             size={"sm"}
                             objectFit={"fill"}
                             objectPosition={"center"}
