@@ -27,7 +27,11 @@ export default function DocumentManagement() {
                         </FormHelperText>
 
                         {/* Group of document checkboxes */}
-                        <Grid gridTemplateColumns={isMobile ? "1fr" : "repeat(2, 1fr)"} gap={5}>
+                        <Grid
+                            gridTemplateColumns={isMobile ? "1fr" : "repeat(2, 1fr)"}
+                            alignItems="stretch"
+                            gap={5}
+                        >
                             {documents.map((document) => (
                                 <GridItem
                                     justifySelf={"center"}

@@ -1,5 +1,10 @@
 import { nanoid } from "nanoid";
 import db, { RaggyChatsDocumentTable } from "../db";
+import { FaFilePdf, FaFileWord, FaMarkdown } from "react-icons/fa6";
+import { IconType } from "react-icons";
+import { BsFiletypePptx, BsFiletypeTxt } from "react-icons/bs";
+import { TbFileSpreadsheet } from "react-icons/tb";
+import { PiFileHtml } from "react-icons/pi";
 
 export class RaggyChatsDocument {
     id: string;
@@ -96,11 +101,20 @@ export class RaggyChatsDocument {
         this.useForRAG = !this.useForRAG;
     }
 
-    private static iconsByType: { [key: string]: string } = {
-        "text/plain": "/txt-icon.jpg",
+    private static iconsByType: { [key: string]: string | IconType } = {
+        "text/plain": BsFiletypeTxt,
+        "text/html": PiFileHtml,
+        "text/markdown": FaMarkdown,
+        "application/pdf": FaFilePdf,
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document": FaFileWord, // .docx
+        "application/vnd.openxmlformats-officedocument.presentationml.presentation": BsFiletypePptx,
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": TbFileSpreadsheet, // .xlsx
+        "application/vnd.oasis.opendocument.text": BsFiletypeTxt, // .odt
+        "application/vnd.oasis.opendocument.presentation": BsFiletypePptx, // .odp
+        "application/vnd.oasis.opendocument.spreadsheet": TbFileSpreadsheet, // .ods
     };
 
-    get iconUrl(): string {
+    get icon(): string | IconType {
         return RaggyChatsDocument.iconsByType[this.type];
     }
 }
