@@ -7,11 +7,11 @@ import {
     GridItem,
     Text,
 } from "@chakra-ui/react";
-import useDocuments from "../../hooks/use-documents";
-import useMobileBreakpoint from "../../hooks/use-mobile-breakpoint";
+import useDocuments from "../../../hooks/use-documents";
+import useMobileBreakpoint from "../../../hooks/use-mobile-breakpoint";
 import DocumentCheckbox from "./DocumentCheckbox";
 
-export default function DocumentsManagement() {
+export default function DocumentManagement() {
     const { documents, toggleUseForRAG } = useDocuments();
     const isMobile = useMobileBreakpoint(700);
 

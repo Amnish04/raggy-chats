@@ -61,12 +61,10 @@ export async function getVectorEmbeddings(
     return embedding.data[0].embedding;
 }
 
-export const GPT_MODEL = "gpt-4o";
-
 // Streaming with openai.beta.chat.completions.stream({…}) exposes
 // various helpers for your convenience including event handlers and promises.
 // https://github.com/openai/openai-node/blob/master/helpers.md#chat-streaming
-export async function chatCompletions(model: string = GPT_MODEL, messages: AiMessages) {
+export async function chatCompletions(model: string, messages: AiMessages) {
     const { apiKey } = getSettings();
     const { openai } = createClient(apiKey);
 
@@ -77,4 +75,18 @@ export async function chatCompletions(model: string = GPT_MODEL, messages: AiMes
     });
 
     return stream;
+}
+
+export async function listModels() {
+    const { apiKey } = getSettings();
+    const { openai } = createClient(apiKey);
+
+    const models = await openai.models.list();
+    const modelsList: OpenAI.Model[] = [];
+
+    for await (const model of models) {
+        modelsList.push(model);
+    }
+
+    return modelsList;
 }

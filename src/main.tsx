@@ -8,6 +8,7 @@ import theme from "./theme.ts";
 import { SettingsProvider } from "./hooks/use-settings.tsx";
 import { MessagesProvider } from "./hooks/use-messages.tsx";
 import { DocumentsProvider } from "./hooks/use-documents.tsx";
+import { ModelsProvider } from "./hooks/use-models.tsx";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
     <React.StrictMode>
@@ -15,7 +16,9 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
             <SettingsProvider>
                 <MessagesProvider>
                     <DocumentsProvider>
-                        <App />
+                        <ModelsProvider>
+                            <App />
+                        </ModelsProvider>
                     </DocumentsProvider>
                 </MessagesProvider>
             </SettingsProvider>

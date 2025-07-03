@@ -7,10 +7,12 @@
  */
 export type Settings = {
     apiKey: string;
+    selectedModel: string;
 };
 
 export const defaults: Settings = {
     apiKey: "",
+    selectedModel: "gpt-4o", // Use the flagship model by default
 };
 
 export const key = "raggy-chats-settings";

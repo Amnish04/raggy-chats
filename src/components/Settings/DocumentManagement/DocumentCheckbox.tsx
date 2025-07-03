@@ -16,10 +16,10 @@ import {
     Tooltip,
 } from "@chakra-ui/react";
 import { FC, useCallback } from "react";
-import { useAlert } from "../../hooks/use-alert";
-import useDocuments from "../../hooks/use-documents";
-import { RaggyChatsDocument } from "../../lib/models/RaggyChatsDocument";
-import useMobileBreakpoint from "../../hooks/use-mobile-breakpoint";
+import { useAlert } from "../../../hooks/use-alert";
+import useDocuments from "../../../hooks/use-documents";
+import { RaggyChatsDocument } from "../../../lib/models/RaggyChatsDocument";
+import useMobileBreakpoint from "../../../hooks/use-mobile-breakpoint";
 
 type DocumentCheckboxProps = {
     document: RaggyChatsDocument;
