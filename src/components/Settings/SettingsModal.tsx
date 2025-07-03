@@ -20,7 +20,7 @@ import { useDebounce } from "react-use";
 import { useSettings } from "../../hooks/use-settings";
 import PasswordInput from "../PasswordInput";
 import { validateApiKey } from "../../lib/ai";
-import DocumentsManagement from "./DocumentsManagement";
+import DocumentManagement from "./DocumentManagement/Index";
 
 const SettingsModal = () => {
     const { isOpen, onOpen, onClose } = useDisclosure();
@@ -108,7 +108,7 @@ const SettingsModal = () => {
                                 )}
                             </FormControl>
 
-                            <DocumentsManagement />
+                            <DocumentManagement />
                         </Stack>
                     </ModalBody>
                 </ModalContent>
