@@ -43,7 +43,7 @@ export const useChat = (): UseChatUtilities => {
                       })
                     : new RaggyChatsMessage({
                           ...prevMessage,
-                          text: `${prevMessage.text} ${chunkMessage.content}`,
+                          text: `${prevMessage.text}${chunkMessage.content}`,
                       });
             });
 
