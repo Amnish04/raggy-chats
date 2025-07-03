@@ -15,7 +15,7 @@ import {
     Text,
     Tooltip,
 } from "@chakra-ui/react";
-import { FC, useCallback } from "react";
+import React, { FC, useCallback } from "react";
 import { useAlert } from "../../../hooks/use-alert";
 import useDocuments from "../../../hooks/use-documents";
 import { RaggyChatsDocument } from "../../../lib/models/RaggyChatsDocument";
@@ -52,15 +52,22 @@ const DocumentCheckbox: FC<DocumentCheckboxProps> = ({ document, checked, onChan
     const isMobile = useMobileBreakpoint();
 
     return (
-        <Card maxW="sm" width={isMobile ? 250 : 300}>
+        <Card maxW="sm" width={isMobile ? 250 : 300} height={"100%"}>
             <CardBody>
-                <Image
-                    src={document.iconUrl}
-                    alt={`"${document.type}" document`}
-                    height={150}
-                    margin={"auto"}
-                    borderRadius="lg"
-                />
+                {typeof document.icon === "string" ? (
+                    <Image
+                        src={document.icon}
+                        alt={`${document.type} document`}
+                        height={150}
+                        margin="auto"
+                        borderRadius="lg"
+                    />
+                ) : (
+                    // icon is a React component
+                    <Flex justifyContent={"center"} alignItems={"center"}>
+                        {React.createElement(document.icon, { size: 128 })}
+                    </Flex>
+                )}
                 <Stack mt="6" spacing="3">
                     <Heading size="sm">{document.fileName}</Heading>
 
