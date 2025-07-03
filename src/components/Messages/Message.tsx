@@ -2,6 +2,7 @@ import { DeleteIcon, EditIcon } from "@chakra-ui/icons";
 import {
     Avatar,
     Box,
+    Button,
     Card,
     CardBody,
     CardHeader,
@@ -12,9 +13,11 @@ import {
     MenuButton,
     MenuItem,
     MenuList,
+    Stack,
     Text,
+    Textarea,
 } from "@chakra-ui/react";
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { useAlert } from "../../hooks/use-alert";
 import useMessages from "../../hooks/use-messages";
@@ -25,9 +28,10 @@ import { useSettings } from "../../hooks/use-settings";
 
 type MessageMenuProps = {
     message: RaggyChatsMessage;
+    setIsEditing: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
-const MessageMenu = ({ message }: MessageMenuProps) => {
+const MessageMenu = ({ message, setIsEditing }: MessageMenuProps) => {
     const { error, success } = useAlert();
 
     const { removeMessage } = useMessages();
@@ -49,7 +53,7 @@ const MessageMenu = ({ message }: MessageMenuProps) => {
     }, [message]);
 
     const editMessage = useCallback(() => {
-        console.log(`Editing message ${message.id}`);
+        setIsEditing((prev) => !prev);
     }, [message]);
 
     return (
@@ -79,6 +83,9 @@ type MessageProps = {
 
 export default function Message({ message }: MessageProps) {
     const { settings } = useSettings();
+    const [isEditing, setIsEditing] = useState(false);
+    const [editorValue, setEditorValue] = useState(message.text);
+    const { updateMessage } = useMessages();
 
     const messageTitle = useMemo(() => {
         let title = "";
@@ -97,6 +104,19 @@ export default function Message({ message }: MessageProps) {
 
         return title;
     }, [message]);
+
+    const reset = useCallback(() => {
+        setEditorValue(message.text);
+        setIsEditing(false);
+    }, [message.text]);
+
+    const save = useCallback(async () => {
+        // Update the message in IndexedDB
+        await updateMessage(message.id, editorValue);
+
+        // Exit the editing state
+        setIsEditing(false);
+    }, [editorValue, message.id]);
 
     return (
         <Card
@@ -125,13 +145,35 @@ export default function Message({ message }: MessageProps) {
                         </Box>
                     </Flex>
 
-                    <MessageMenu message={message} />
+                    <MessageMenu message={message} setIsEditing={setIsEditing} />
                 </Flex>
             </CardHeader>
             <CardBody paddingTop={0}>
-                <Box>
+                {isEditing ? (
+                    <Stack spacing={"2"}>
+                        <Textarea
+                            w={"xl"}
+                            value={editorValue}
+                            onChange={(e) => {
+                                let inputValue = e.target.value;
+                                setEditorValue(inputValue);
+                            }}
+                            placeholder="Message content here..."
+                            size="lg"
+                        />
+
+                        <Flex justifyContent={"flex-end"} gap={3} paddingTop={2}>
+                            <Button colorScheme={"red"} size={"xs"} onClick={reset}>
+                                Cancel
+                            </Button>
+                            <Button size={"xs"} onClick={save}>
+                                Save
+                            </Button>
+                        </Flex>
+                    </Stack>
+                ) : (
                     <Markdown isLoading={false}>{message.text}</Markdown>
-                </Box>
+                )}
             </CardBody>
         </Card>
     );
