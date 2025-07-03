@@ -152,7 +152,8 @@ export default function Message({ message }: MessageProps) {
                 {isEditing ? (
                     <Stack spacing={"2"}>
                         <Textarea
-                            w={"xl"}
+                            w={"100%"}
+                            minW={"xl"}
                             value={editorValue}
                             onChange={(e) => {
                                 let inputValue = e.target.value;
