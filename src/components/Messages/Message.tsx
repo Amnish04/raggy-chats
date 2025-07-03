@@ -105,6 +105,8 @@ export default function Message({ message }: MessageProps) {
         return title;
     }, [message]);
 
+    const { info } = useAlert();
+
     const reset = useCallback(() => {
         setEditorValue(message.text);
         setIsEditing(false);
@@ -116,6 +118,11 @@ export default function Message({ message }: MessageProps) {
 
         // Exit the editing state
         setIsEditing(false);
+
+        info({
+            title: "Success",
+            message: "Message saved successfully.",
+        });
     }, [editorValue, message.id]);
 
     return (
