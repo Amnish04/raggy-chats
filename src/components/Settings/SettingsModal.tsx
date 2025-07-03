@@ -11,6 +11,7 @@ import {
     ModalContent,
     ModalHeader,
     ModalOverlay,
+    Select,
     Stack,
     Tooltip,
     useDisclosure,
@@ -21,6 +22,7 @@ import { useSettings } from "../../hooks/use-settings";
 import PasswordInput from "../PasswordInput";
 import { validateApiKey } from "../../lib/ai";
 import DocumentManagement from "./DocumentManagement/Index";
+import useModels from "../../hooks/use-models";
 
 const SettingsModal = () => {
     const { isOpen, onOpen, onClose } = useDisclosure();
@@ -28,6 +30,8 @@ const SettingsModal = () => {
     const handleModalOpened = useCallback(() => {
         onOpen();
     }, [onOpen]);
+
+    const models = useModels();
 
     const { settings, setSettings } = useSettings();
 
@@ -98,8 +102,7 @@ const SettingsModal = () => {
 
                                 {isKeyValid ? (
                                     <FormHelperText>
-                                        Please enter your OpenAI API Key to be used for chat
-                                        completions
+                                        Please enter your OpenAI API Key to be used for AI inference
                                     </FormHelperText>
                                 ) : (
                                     <FormErrorMessage>
@@ -107,6 +110,32 @@ const SettingsModal = () => {
                                     </FormErrorMessage>
                                 )}
                             </FormControl>
+
+                            {isKeyValid && (
+                                <FormControl>
+                                    <FormLabel>Available Models</FormLabel>
+                                    <Select
+                                        value={settings.selectedModel}
+                                        onChange={(e) => {
+                                            setSettings({
+                                                ...settings,
+                                                selectedModel: e.target.value,
+                                            });
+                                        }}
+                                        placeholder="Select model"
+                                    >
+                                        {models.map((model) => (
+                                            <option key={model.id} value={model.id}>
+                                                {model.id}
+                                            </option>
+                                        ))}
+                                    </Select>
+
+                                    <FormHelperText>
+                                        Select the LLM to be used for AI inference
+                                    </FormHelperText>
+                                </FormControl>
+                            )}
 
                             <DocumentManagement />
                         </Stack>

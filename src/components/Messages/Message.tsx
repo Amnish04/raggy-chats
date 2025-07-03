@@ -21,7 +21,7 @@ import useMessages from "../../hooks/use-messages";
 import { RaggyChatsMessage } from "../../lib/models/RaggyChatsMessage";
 import Markdown from "./Markdown";
 import "./Message.scss";
-import { GPT_MODEL } from "../../lib/ai";
+import { useSettings } from "../../hooks/use-settings";
 
 type MessageMenuProps = {
     message: RaggyChatsMessage;
@@ -78,6 +78,8 @@ type MessageProps = {
 };
 
 export default function Message({ message }: MessageProps) {
+    const { settings } = useSettings();
+
     const messageTitle = useMemo(() => {
         let title = "";
 
@@ -89,7 +91,7 @@ export default function Message({ message }: MessageProps) {
                 title = "User";
                 break;
             case "assistant":
-                title = message.model ?? GPT_MODEL;
+                title = message.model || settings.selectedModel;
                 break;
         }
 

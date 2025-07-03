@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { GPT_MODEL, chatCompletions } from "../lib/ai";
+import { chatCompletions } from "../lib/ai";
 import { AiMessage } from "../lib/models/AiMessage";
 import {
     MessageType,
@@ -7,6 +7,7 @@ import {
     RaggyChatsMessages,
 } from "../lib/models/RaggyChatsMessage";
 import useMessages from "./use-messages";
+import { useSettings } from "./use-settings";
 
 type UseChatUtilities = {
     streamingMessage: RaggyChatsMessage | null;
@@ -19,14 +20,15 @@ type UseChatUtilities = {
 export const useChat = (): UseChatUtilities => {
     const [streamingMessage, setStreamingMessage] = useState<RaggyChatsMessage | null>(null);
     const { addMessage } = useMessages();
+    const { settings } = useSettings();
 
     async function generateChatCompletions(
         messages: RaggyChatsMessages,
         scrollCallback: () => void
     ) {
-        // TODO: Replace hard coded model with an option in settings
+        const selectedModel = settings.selectedModel;
         const stream = await chatCompletions(
-            GPT_MODEL,
+            selectedModel,
             messages.map((message) => new AiMessage(message.type, message.text))
         );
 
@@ -53,7 +55,11 @@ export const useChat = (): UseChatUtilities => {
         setStreamingMessage(null);
 
         await addMessage(
-            new RaggyChatsMessage({ type: finalMessage.role, text: finalMessage.content ?? "" })
+            new RaggyChatsMessage({
+                type: finalMessage.role,
+                text: finalMessage.content ?? "",
+                model: selectedModel,
+            })
         );
 
         scrollCallback();

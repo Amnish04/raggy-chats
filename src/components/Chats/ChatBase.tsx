@@ -12,7 +12,6 @@ import { useAlert } from "../../hooks/use-alert";
 export default function ChatBase() {
     const { messages, addMessage } = useMessages();
     const { error } = useAlert();
-    console.log(messages);
     const { streamingMessage, generateChatCompletions } = useChat();
     const messagesArea = useRef<HTMLDivElement>(null);
 
@@ -51,7 +50,6 @@ export default function ChatBase() {
                             })
                         );
 
-                        console.log("Adding to context", mostRelevantChunks);
                         mostRelevantChunks.forEach((relevantChunk) => {
                             documentContextMessages.push(
                                 new RaggyChatsMessage({
@@ -65,9 +63,6 @@ export default function ChatBase() {
 
                     const chatMessages = messages.filter((m) => m.type !== "system");
                     const systemMessages = messages.filter((m) => m.type === "system");
-
-                    console.log("System messages", systemMessages);
-                    console.log("All messages", messages);
 
                     // Chat Completions Here
                     await generateChatCompletions(
