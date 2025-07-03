@@ -18,6 +18,7 @@ type MessagesContextType = {
     messages: RaggyChatsMessages;
     addMessage: (message: RaggyChatsMessage) => Promise<void>;
     removeMessage: (id: string) => Promise<void>;
+    updateMessage: (id: string, newText: string) => Promise<void>;
 };
 
 const defaultSystemMessage = new RaggyChatsMessage({
@@ -46,6 +47,7 @@ const MessagesContext = createContext<MessagesContextType>({
     messages: [],
     addMessage: asyncNoop,
     removeMessage: asyncNoop,
+    updateMessage: asyncNoop,
 });
 
 export const MessagesProvider: FC<{ children: ReactNode }> = ({ children }) => {
@@ -89,6 +91,27 @@ export const MessagesProvider: FC<{ children: ReactNode }> = ({ children }) => {
         [error, setMessages]
     );
 
+    const updateMessage = useCallback(
+        async (id: string, newText: string) => {
+            try {
+                const existing = messages.find((msg) => msg.id === id);
+                if (!existing) throw new Error("Message not found");
+
+                await existing.updateText(newText);
+
+                const updatedMessages = await RaggyChatsMessage.getAll();
+                setMessages(updatedMessages);
+            } catch (err: any) {
+                console.error(err);
+                error({
+                    title: "Failed to update message",
+                    message: err.message,
+                });
+            }
+        },
+        [messages, error]
+    );
+
     const removeMessage = useCallback(
         async (id: string) => {
             try {
@@ -112,8 +135,9 @@ export const MessagesProvider: FC<{ children: ReactNode }> = ({ children }) => {
             messages,
             addMessage,
             removeMessage,
+            updateMessage,
         }),
-        [messages, addMessage, removeMessage]
+        [messages, addMessage, removeMessage, updateMessage]
     );
 
     return <MessagesContext.Provider value={value}>{children}</MessagesContext.Provider>;

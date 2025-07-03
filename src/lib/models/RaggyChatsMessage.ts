@@ -67,4 +67,14 @@ export class RaggyChatsMessage {
     static async add(message: RaggyChatsMessage) {
         return await db.messages.add(message.toDB());
     }
+
+    async updateText(newText: string) {
+        this.text = newText;
+        // TODO: Add a new field `lastUpdated`
+        // this.lastUpdated = new Date();
+
+        return db.messages.update(this.id, {
+            text: newText,
+        });
+    }
 }
