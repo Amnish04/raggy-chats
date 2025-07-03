@@ -13,7 +13,7 @@ import { useAlert } from "../hooks/use-alert";
 import { getVectorEmbeddings } from "../lib/ai";
 import { RaggyChatsDocument } from "../lib/models/RaggyChatsDocument";
 import { RaggyChatsDocumentChunk } from "../lib/models/RaggyChatsDocumentChunk";
-import { getSentenceChunksFrom } from "../lib/utils";
+import { extractTextFromFile, getSentenceChunksFrom } from "../lib/utils";
 import FileInputButton from "./FileInputButton";
 import useDocuments from "../hooks/use-documents";
 
@@ -62,7 +62,7 @@ export default function PromptForm({ handleSendMessage }: PromptFormProps) {
             };
 
             try {
-                const textContent = await selectedFile.text();
+                const textContent = await extractTextFromFile(selectedFile);
                 const chunks = getSentenceChunksFrom(textContent, 2000);
 
                 const chunksToBeProcessed = chunks.length;

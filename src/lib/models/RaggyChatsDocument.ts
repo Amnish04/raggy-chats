@@ -28,14 +28,25 @@ export class RaggyChatsDocument {
         this.dateAdded = dateAdded;
     }
 
-    private static supportedDocumentTypes: string[] = ["text/plain", "text/markdown", "text/html"];
+    private static supportedDocumentTypes: string[] = [
+        "text/plain",
+        "text/markdown",
+        "text/html",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document", // .docx
+        "application/vnd.openxmlformats-officedocument.presentationml.presentation", // .pptx
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // .xlsx
+        "application/vnd.oasis.opendocument.text", // .odt
+        "application/vnd.oasis.opendocument.presentation", // .odp
+        "application/vnd.oasis.opendocument.spreadsheet", // .ods
+        "application/pdf", // .pdf
+    ];
 
     static isSupportedType(type: string) {
         return this.supportedDocumentTypes.includes(type);
     }
 
     static upcomingSupportedTypes(): string[] {
-        return ["application/pdf", "application/msword", "image/png", "image/jpeg", "image/svg"];
+        return [];
     }
 
     static fromDB(document: RaggyChatsDocumentTable): RaggyChatsDocument {

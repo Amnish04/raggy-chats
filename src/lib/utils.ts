@@ -72,3 +72,30 @@ export function getSentenceChunksFrom(text: string, maxCharsPerSentence: number 
 
     return chunks;
 }
+
+export async function extractTextFromFile(file: File): Promise<string> {
+    // My own parsing service :)
+    const TEXT_EXTRACTOR_BASE_URL = "https://extract-text-from-file.vercel.app/";
+    const TEXT_EXTRACTOR_API_URL = new URL("/api/extract", TEXT_EXTRACTOR_BASE_URL);
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const response = await fetch(TEXT_EXTRACTOR_API_URL.toString(), {
+        method: "POST",
+        body: formData,
+    });
+
+    if (!response.ok) {
+        const { error } = await response.json();
+        throw new Error(error || `Failed to extract text (status ${response.status})`);
+    }
+
+    const { content } = await response.json();
+
+    if (typeof content !== "string") {
+        throw new Error("Unexpected response format: 'content' must be a string.");
+    }
+
+    return content;
+}
